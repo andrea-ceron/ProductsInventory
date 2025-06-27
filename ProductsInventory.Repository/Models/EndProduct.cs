@@ -12,6 +12,7 @@ namespace ProductsInventory.Repository.Models
 		required public string ProductName { get; set; }
 		public int InStorage { get; set; }
 		public decimal Price { get; set; }
+		public int VAT { get; set; } = 22; 
 		public List<ProductionProcess> ProductionProcess { get; set; } = new List<ProductionProcess>();
 		public List<RawMaterialForProduction> RawMaterialForProduction { get; set; } = new List<RawMaterialForProduction>();
 	}

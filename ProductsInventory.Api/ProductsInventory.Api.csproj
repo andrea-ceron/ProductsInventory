@@ -1,9 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>ProductsInventory_Microservice</PackageId>
+	  <IsPackable>false</IsPackable>
+
+	  <Version>1.0.0</Version>                   
+  <Authors>Andrea Ceron</Authors>                
+  
+  <PackageDescription>The microservice manages the production of EndProducts in relation to rawMaterial availability</PackageDescription>
+  <RepositoryUrl>https://github.com/andrea-ceron/ProductsInventory</RepositoryUrl>       
+  
+  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>  
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Utility.Kafka" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,3 +37,4 @@
   </ItemGroup>
 
 </Project>
+

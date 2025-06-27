@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using ProductsInventory.Business.Abstractions;
+using ProductsInventory.Business.Factory;
 using ProductsInventory.Business.helperModels;
 using ProductsInventory.Repository.Abstractions;
 using ProductsInventory.Repository.Models;
@@ -8,7 +9,7 @@ using ProductsInventory.Shared.DTO;
 
 namespace ProductsInventory.Business
 {
-	public class Business(IRepository repository, ILogger<Business> logger, IMapper mapper) : IBusiness
+	public class Business(IRepository repository, ILogger<Business> logger, IMapper mapper, IEndProductObserver observer) : IBusiness
 
 	{
 		#region EndProduct
@@ -22,6 +23,9 @@ namespace ProductsInventory.Business
 			{
 				await repository.CreateEndProductAsync(endProduct, ct);
 				await repository.SaveChangesAsync(ct);
+				var recordKafka = mapper.Map<EndProductDtoForKafka>(endProduct);
+				var record = TransactionalOutboxFactory.CreateInsert(recordKafka);
+				await repository.InsertTransactionalOutboxAsync(record, ct);
 
 				foreach (var rawmaterial in endProductdto.RawMaterialForProduction)
 				{
@@ -38,17 +42,27 @@ namespace ProductsInventory.Business
 				await repository.SaveChangesAsync(ct);
 
 			});
+			observer.AddEndProduct.OnNext(1);
 
 		}
 		public async Task DeleteEndProductAsync(int endProductId, CancellationToken ct = default)
 		{
+			var productDto = await repository.GetEndProductAsync(endProductId, ct);
+
 			await repository.CreateTransaction(async () =>
 			{
 				await repository.DeleteAllRawMaterialForProductionByEndProductIdAsync(endProductId, ct);
 				await repository.SaveChangesAsync(ct);
 				await repository.DeleteEndProduct(endProductId, ct);
 				await repository.SaveChangesAsync(ct);
+				var recordKafka = mapper.Map<EndProductDtoForKafka>(productDto);
+				var record = TransactionalOutboxFactory.CreateDelete(recordKafka);
+				await repository.InsertTransactionalOutboxAsync(record, ct);
+				await repository.SaveChangesAsync(ct);
+
 			});
+			observer.AddEndProduct.OnNext(1);
+
 		}
 		public async  Task<ReadEndProductDto> GetEndProductAsync(int endProductId, CancellationToken ct = default)
 		{
@@ -61,40 +75,37 @@ namespace ProductsInventory.Business
 		{
 			var model = mapper.Map<EndProduct>(endProductdto);
 			model.RawMaterialForProduction = new List<RawMaterialForProduction>();
-			await repository.UpdateEndProductAsync(model, ct);
-			await repository.SaveChangesAsync(ct);
 			List<CreateRawMaterialForProductionHelperDto> newRawMaterials = new();
 
-			foreach (var rawmaterial in endProductdto.RawMaterialForProduction)
+			await repository.CreateTransaction(async () =>
 			{
-				CreateRawMaterialForProductionHelperDto helper = new()
+				await repository.UpdateEndProductAsync(model, ct);
+				await repository.SaveChangesAsync(ct);
+				var recordKafka = mapper.Map<EndProductDtoForKafka>(model);
+				var record = TransactionalOutboxFactory.CreateUpdate(recordKafka);
+				await repository.InsertTransactionalOutboxAsync(record, ct);
+				foreach (var rawmaterial in endProductdto.RawMaterialForProduction)
 				{
-					EndProductId = endProductdto.Id,
-					RawMaterialId = rawmaterial.RawMaterialId,
-					QuantityNeeded = rawmaterial.QuantityNeeded
-				};
-				newRawMaterials.Add(helper);
-			}
-			var listOfRawMaterialForProduction = mapper.Map<List<RawMaterialForProduction>>(newRawMaterials);
+					CreateRawMaterialForProductionHelperDto helper = new()
+					{
+						EndProductId = endProductdto.Id,
+						RawMaterialId = rawmaterial.RawMaterialId,
+						QuantityNeeded = rawmaterial.QuantityNeeded
+					};
+					newRawMaterials.Add(helper);
+				}
+				var listOfRawMaterialForProduction = mapper.Map<List<RawMaterialForProduction>>(newRawMaterials);
 
-			await repository.CreateRawMaterialForProductionAsync(listOfRawMaterialForProduction, ct);
-			await repository.SaveChangesAsync(ct);
+				await repository.CreateRawMaterialForProductionAsync(listOfRawMaterialForProduction, ct);
+				await repository.SaveChangesAsync(ct);
+			});
+
+			observer.AddEndProduct.OnNext(1);
+
 		}
 		#endregion
 
 		#region RawMaterial
-		public async Task CreateRawMaterialAsync(CreateRawMaterialDto rawMaterialDto, CancellationToken ct = default)
-		{
-			RawMaterial model = mapper.Map<RawMaterial>(rawMaterialDto);
-			await repository.CreateRawMaterialAsync(model, ct);
-			await repository.SaveChangesAsync(ct);
-		}
-		public async  Task DeleteRawMaterialAsync(int rawMaterialId, CancellationToken ct = default)
-		{
-			await repository.DeleteRawMaterial(rawMaterialId, ct);
-			await repository.SaveChangesAsync(ct);
-
-		}
 		public async Task<ReadAndUpdateRawMaterialDto> GetRawMaterialAsync(int rawMaterialId, CancellationToken ct = default)
 		{
 			var rawMaterial = await repository.GetRawMaterialAsync(rawMaterialId, ct);	

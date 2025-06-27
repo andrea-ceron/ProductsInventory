@@ -38,4 +38,15 @@ namespace ProductsInventory.Shared.DTO
 		public List<ReadRawMaterialForProductionDto> RawMaterialForProduction { get; set; } = new List<ReadRawMaterialForProductionDto>();
 
 	}
+
+	public class EndProductDtoForKafka
+
+	{
+		public int Id { get; set; }
+		public string ProductName { get; set; } = string.Empty;
+		public int InStorage { get; set; }
+		public decimal Price { get; set; }
+		public int VAT { get; set; } = 22; 
+
+	}
 }

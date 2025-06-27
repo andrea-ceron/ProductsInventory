@@ -12,26 +12,6 @@ public class RawMaterialController(IBusiness business, ILogger<RawMaterialContro
 	private readonly IBusiness _business = business;
 	private readonly ILogger<RawMaterialController> _logger = logger;
 
-
-
-	[HttpPost(Name = "CreateRawMaterial")]
-	public async Task<ActionResult> CreateRawMaterial(CreateRawMaterialDto rawMaterialDto)
-	{
-
-		await _business.CreateRawMaterialAsync(rawMaterialDto);
-		return Ok();
-
-
-	}
-
-	[HttpDelete(Name = "DeleteRawMaterialQuantity")]
-	public async Task<ActionResult> DeleteRawMaterial(int rawMaterialId)
-	{
-		await _business.DeleteRawMaterialAsync(rawMaterialId);
-		return Ok();
-	}
-
-
 	[HttpGet(Name = "GetRawMaterialQuantity")]
 	public async Task<ActionResult> GetRawMaterial(int rawMaterialId)
 	{

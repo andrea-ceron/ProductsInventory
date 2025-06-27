@@ -10,9 +10,9 @@ namespace ProductsInventory.Business.Abstractions
 {
     public interface IBusiness
     {
-		public Task CreateRawMaterialAsync(CreateRawMaterialDto rawMaterialDto, CancellationToken ct = default);
+		//public Task CreateRawMaterialAsync(CreateRawMaterialDto rawMaterialDto, CancellationToken ct = default);
 		public Task<ReadAndUpdateRawMaterialDto> GetRawMaterialAsync(int rawMaterialId, CancellationToken ct = default);
-		public Task DeleteRawMaterialAsync(int rawMaterialId, CancellationToken ct = default);
+		//public Task DeleteRawMaterialAsync(int rawMaterialId, CancellationToken ct = default);
 
 		public Task CreateEndProductAsync(CreateEndProductDto endProduct, CancellationToken ct = default);
 		public Task UpdateEndProductAsync(UpdateEndProductDto endProduct, CancellationToken ct = default);

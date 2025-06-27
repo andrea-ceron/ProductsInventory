@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductsInventory.Repository.Model;
 using ProductsInventory.Repository.Models;
 using System;
 using System.Collections.Generic;
@@ -46,7 +47,10 @@ namespace ProductsInventory.Repository
 			
 			modelBuilder.Entity<ShipmentItems>()
 				.HasKey(p => p.Id);
-			
+
+			modelBuilder.Entity<TransactionalOutbox>()
+				.HasKey(p => p.Id);
+
 		}
 		public DbSet<RawMaterial> RawMaterials { get; set; }
 		public DbSet<ProductionProcess> ProductionProcesses { get; set; }
@@ -54,6 +58,7 @@ namespace ProductsInventory.Repository
 		public DbSet<Shipment> Shipments { get; set; }
 		public DbSet<RawMaterialForProduction> RawMaterialForProductions { get; set; }
 		public DbSet<ShipmentItems> ShippingItems { get; set; }
+		public DbSet<TransactionalOutbox> TransactionalOutboxes { get; set; }
 
 	}
 }

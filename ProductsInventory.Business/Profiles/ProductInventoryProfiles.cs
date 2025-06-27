@@ -2,6 +2,7 @@
 using ProductsInventory.Business.helperModels;
 using ProductsInventory.Repository.Models;
 using ProductsInventory.Shared.DTO;
+using PurchaseManager.Shared.DTO;
 using System.Diagnostics.CodeAnalysis;
 
 
@@ -27,6 +28,7 @@ public class InputFileProfile : Profile
 		CreateMap<CreateEndProductDto, EndProduct>();
 		CreateMap<EndProduct, ReadEndProductDto>();
 		CreateMap<UpdateEndProductDto, EndProduct>();
+		CreateMap<EndProduct, EndProductDtoForKafka>();
 
 		CreateMap<CreateRawMaterialForProductionDto, RawMaterialForProduction>();
 		CreateMap<RawMaterialForProduction, ReadRawMaterialForProductionDto>();
@@ -45,6 +47,9 @@ public class InputFileProfile : Profile
 
 		CreateMap<CreateProductionProcessDto, ProductionProcess>();
 		CreateMap<ProductionProcess, ReadProductionProcessDto>();
+
+		CreateMap<ProductDtoForKafka, RawMaterial>();
+
 
 	}
 }

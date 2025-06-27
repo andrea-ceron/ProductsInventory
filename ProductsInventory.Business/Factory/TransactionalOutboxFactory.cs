@@ -1,29 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using ProductsInventory.Repository.Model;
+using ProductsInventory.Shared.DTO;
 
-namespace CustomerManager.Business.Factory
+using System.Text.Json;
+using Utility.Kafka.MessageHandlers;
+
+namespace ProductsInventory.Business.Factory
 {
     public static class TransactionalOutboxFactory
     {
-		//private static TransactionalOutbox Create<TDTO>(string table, TDTO dto, string operation) where TDTO : class, new()
-		//{
+		public static TransactionalOutbox CreateInsert(EndProductDtoForKafka dto) => Create(dto, Operations.Insert);
+		public static TransactionalOutbox CreateUpdate(EndProductDtoForKafka dto) => Create(dto, Operations.Update);
+		public static TransactionalOutbox CreateDelete(EndProductDtoForKafka dto) => Create(dto, Operations.Delete);
 
-		//	OperationMessage<TDTO> opMsg = new OperationMessage<TDTO>()
-		//	{
-		//		Dto = dto,
-		//		Operation = operation
-		//	};
-		//	opMsg.CheckMessage();
+		private static TransactionalOutbox Create(EndProductDtoForKafka dto, string operation)
+		{
+			return Create(nameof(EndProductDtoForKafka), dto, operation);
+		}
 
-		//	return new TransactionalOutbox()
-		//	{
-		//		Tabella = table,
-		//		Messaggio = JsonSerializer.Serialize(opMsg)
-		//	};
-		//}
+		private static TransactionalOutbox Create<TDTO>(string table, TDTO dto, string operation) where TDTO : class, new()
+		{
+
+			OperationMessage<TDTO> opMsg = new()
+			{
+				Dto = dto,
+				Operation = operation
+			};
+
+			return new TransactionalOutbox()
+			{
+				Table = table,
+				Message = JsonSerializer.Serialize(opMsg)
+			};
+		}
 	}
 }

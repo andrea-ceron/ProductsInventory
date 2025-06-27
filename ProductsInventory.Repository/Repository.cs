@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using ProductsInventory.Repository.Abstractions;
+using ProductsInventory.Repository.Model;
 using ProductsInventory.Repository.Models;
 using System.Xml;
 
@@ -42,7 +43,7 @@ namespace ProductsInventory.Repository
 		#endregion
 
 		#region RawMaterial
-		public async Task CreateRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
+		public async Task InsertRawMaterial(RawMaterial model, CancellationToken ct = default)
 		{
 			await dbContext.AddAsync(model, ct);
 		}
@@ -122,6 +123,29 @@ namespace ProductsInventory.Repository
 		}
 		#endregion
 
+		#region TransactionalOutbox
+		public async Task<IEnumerable<TransactionalOutbox>> GetAllTransactionalOutbox(CancellationToken ct = default)
+		{
+			return await dbContext.TransactionalOutboxes
+				.ToListAsync(ct);
+		}
+		public async Task DeleteTransactionalOutboxAsync(long id, CancellationToken cancellationToken = default)
+		{
+			dbContext.TransactionalOutboxes.Remove(await GetTransactionalOutboxByKeyAsync(id, cancellationToken)
+				?? throw new ArgumentException($"TransactionalOutbox con id {id} non trovato", nameof(id)));
+		}
+
+		public async Task<TransactionalOutbox?> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default)
+		{
+			return await dbContext.TransactionalOutboxes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+		}
+
+		public async Task InsertTransactionalOutboxAsync(TransactionalOutbox transactionalOutbox, CancellationToken cancellationToken = default)
+		{
+			await dbContext.TransactionalOutboxes.AddAsync(transactionalOutbox, cancellationToken);
+		}
+		#endregion
+
 		public async Task CreateProductionProcessAsync(ProductionProcess model, CancellationToken ct = default)
 		{
 			EndProduct? endProduct = await GetEndProductAsync(model.EndProductId, ct);
@@ -179,6 +203,9 @@ namespace ProductsInventory.Repository
 			return await dbContext.SaveChangesAsync(cancellationToken);
 		}
 
-
+		public Task InsertRawMaterialAsync(RawMaterial model, CancellationToken ct = default)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿using ProductsInventory.Repository.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductsInventory.Repository.Model;
+using ProductsInventory.Repository.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +20,11 @@ namespace ProductsInventory.Repository.Abstractions
 
 
 		#region RawMaterial
-		public Task CreateRawMaterialAsync(RawMaterial model, CancellationToken ct = default);
+		public Task InsertRawMaterialAsync(RawMaterial model, CancellationToken ct = default);
 		public Task DeleteRawMaterial(int rawMaterialId, CancellationToken ct = default);
 		public Task<RawMaterial> GetRawMaterialAsync(int rawMaterialId, CancellationToken ct = default);
+		public Task UpdateRawMaterialAsync(RawMaterial model, CancellationToken ct = default);
+
 		#endregion
 
 		#region RawMaterialForProduction
@@ -35,6 +39,14 @@ namespace ProductsInventory.Repository.Abstractions
 		public Task<Shipment?> GetShipmentAsync(int shipmentId, CancellationToken ct = default);
 		#endregion
 
+		#region TransactionalOutbox
+		public Task<IEnumerable<TransactionalOutbox>> GetAllTransactionalOutbox(CancellationToken ct = default);
+		public Task DeleteTransactionalOutboxAsync(long id, CancellationToken cancellationToken = default);
+		public Task<TransactionalOutbox?> GetTransactionalOutboxByKeyAsync(long id, CancellationToken cancellationToken = default);
+		public Task InsertTransactionalOutboxAsync(TransactionalOutbox transactionalOutbox, CancellationToken cancellationToken = default);
+
+
+		#endregion
 
 		public Task CreateProductionProcessAsync(ProductionProcess model, CancellationToken ct = default);
 
